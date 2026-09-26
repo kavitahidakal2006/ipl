@@ -1,3 +1,7 @@
+import { useEffect, useState } from "react";
+import { supabase } from "../supabase";
+
+
 function MatchCard(props) {
   return (
     <div className="match-card">
@@ -17,29 +21,43 @@ function MatchCard(props) {
 }
 
 function Matches() {
+  const [matches, setMatches] = useState([]);
+
+  useEffect(() => {
+    getMatches();
+  }, []);
+
+  async function getMatches() {
+    const { data, error } = await supabase
+      .from("matches")
+      .select("*");
+
+    if (error) {
+      console.log(error);
+    } else {
+      setMatches(data);
+    }
+  }
+
   return (
     <main className="matches-page">
 
       <h1>Upcoming IPL Matches</h1>
 
       <div className="matches-grid">
-        <MatchCard
-          team1="RCB"
-          team2="CSK"
-          venue="M. Chinnaswamy Stadium, Bengaluru"
-          date="25 March 2026"
-        />
-        
-   <MatchCard
-          team1="MI"
-          team2="KKR"
-          venue="Wankhede Stadium, Mumbai"
-          date="28 March 2026"
-        />
-
+        {matches.map((match) => (
+          <MatchCard
+            key={match.id}
+            team1={match.team1}
+            team2={match.team2}
+            venue={match.venue}
+            date={match.date}
+          />
+        ))}
       </div>
 
     </main>
   );
 }
+
 export default Matches;
